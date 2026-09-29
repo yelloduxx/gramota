@@ -43,7 +43,8 @@ button:disabled{opacity:.55;cursor:progress}
 .result{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:12px}
 .result p{margin:0;line-height:1.5;max-width:65ch}
 .result img{width:100%;max-width:100%;height:auto;display:block;border:1px solid var(--line)}
-.stage{width:100%;overflow:hidden;border-radius:4px;box-shadow:0 1px 2px rgba(0,0,0,.12),0 8px 28px rgba(0,0,0,.12)}
+[hidden]{display:none!important}
+.stage{width:100%;max-width:794px;margin-inline:auto;overflow:hidden;border-radius:4px;box-shadow:0 1px 2px rgba(0,0,0,.12),0 8px 28px rgba(0,0,0,.12)}
 .scaler{width:794px;height:1123px;transform-origin:0 0}
 @media (max-width:560px){.panel{grid-template-columns:minmax(0,1fr)}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
@@ -276,7 +277,7 @@ button:disabled{opacity:.55;cursor:progress}
     scaler.style.transform='scale('+s+')';
     stage.style.height=(1123*s)+'px';
   }
-  new ResizeObserver(fit).observe(stage); fit();
+  new ResizeObserver(fit).observe(stage); fit(); window.addEventListener('resize',fit);
 
   function fitName(){
     var size=54; box.style.fontSize=size+'px';
