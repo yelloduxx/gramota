@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Грамота за камеральную проверку</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=PT+Serif:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+/* Layout: narrow control strip on top, the A4 sheet below scaled to the column width */
+:root{
+  --bg:#eef0ea; --panel:#ffffff; --fg:#1b1f1c; --muted:#5b645e; --line:#cfd6cf;
+  --accent:#1f4d3a; --accent-fg:#fbf7ec; --gold:#8a6a26; --err:#a3321f;
+  --display:'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --body:'PT Serif', Georgia, 'Times New Roman', serif;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#141916; --panel:#1d2420; --fg:#e8ebe6; --muted:#a3ada6; --line:#34403a;
+  --accent:#7fbf9f; --accent-fg:#10201a; --gold:#d6b46a; --err:#f08a73; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#141916; --panel:#1d2420; --fg:#e8ebe6; --muted:#a3ada6; --line:#34403a;
+  --accent:#7fbf9f; --accent-fg:#10201a; --gold:#d6b46a; --err:#f08a73; color-scheme:dark }
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;margin:0}
+.wrap{max-width:860px;margin:0 auto;padding-inline:16px;padding-block:28px 48px;display:flex;flex-direction:column;gap:22px}
+header h1{font-family:var(--display);font-weight:700;font-size:clamp(30px,6vw,44px);line-height:1.05;margin:0;color:var(--accent);text-wrap:balance}
+header p{margin:8px 0 0;color:var(--muted);max-width:60ch;line-height:1.5}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px;display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:14px 16px;align-items:end}
+.field{display:flex;flex-direction:column;gap:6px;min-width:0}
+label{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold)}
+textarea{font:inherit;font-size:16px;line-height:1.5;padding:10px 12px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);resize:vertical;min-width:0}
+.wide{grid-column:1/-1}
+textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+input{font:inherit;font-size:18px;padding:10px 12px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);min-width:0}
+input:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.actions{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+button{font:inherit;font-size:16px;padding:11px 18px;min-height:44px;border-radius:6px;cursor:pointer;border:1px solid var(--accent)}
+.primary{background:var(--accent);color:var(--accent-fg)}
+.secondary{background:transparent;color:var(--accent)}
+button:disabled{opacity:.55;cursor:progress}
+#status{font-size:14px;color:var(--muted)}
+#status.err{color:var(--err)}
+.result{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.result p{margin:0;line-height:1.5;max-width:65ch}
+.result img{width:100%;max-width:100%;height:auto;display:block;border:1px solid var(--line)}
+.stage{width:100%;overflow:hidden;border-radius:4px;box-shadow:0 1px 2px rgba(0,0,0,.12),0 8px 28px rgba(0,0,0,.12)}
+.scaler{width:794px;height:1123px;transform-origin:0 0}
+@media (max-width:560px){.panel{grid-template-columns:minmax(0,1fr)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@page{size:A4;margin:0}
+@media print{
+  html,body{background:#fbf7ec!important;margin:0;padding:0}
+  .wrap{padding:0!important;max-width:none!important;gap:0!important}
+  .wrap>header,.wrap>form,.wrap>.result{display:none!important}
+  .stage{box-shadow:none!important;border-radius:0!important;height:auto!important;overflow:visible!important;width:210mm!important}
+  .scaler{transform:none!important;zoom:1}
+  #cert{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header>
+    <h1>Грамота за камеральную проверку</h1>
+    <p>Впишите фамилию и имя, и грамота обновится сразу. Готовый лист формата A4 можно распечатать или скачать в PDF и картинкой.</p>
+  </header>
+
+  <form class="panel" id="form" autocomplete="off">
+    <div class="field">
+      <label for="nameInput">Фамилия и имя</label>
+      <input id="nameInput" type="text" maxlength="40" value="" placeholder="Например: Иванов Иван">
+    </div>
+    <div class="field">
+      <label for="dateInput">Дата</label>
+      <input id="dateInput" type="text" maxlength="24" value="Сентябрь 2026 г.">
+    </div>
+    <div class="field wide">
+      <label for="storyInput">Текст под именем</label>
+      <textarea id="storyInput" rows="4" maxlength="360">Инспекция запросила документы и потребовала подтвердить проживание в регионе. Вместе с юристом было составлено обстоятельное ответное письмо, доводы налогоплательщика приняты, и проверка завершилась без единой претензии.</textarea>
+    </div>
+    <div class="actions">
+      <button type="button" class="primary" id="pdfBtn">Скачать PDF (A4)</button>
+      <button type="button" class="secondary" id="pngBtn">Скачать картинку</button>
+      <button type="button" class="secondary" id="printBtn">Распечатать</button>
+      <span id="status" role="status" aria-live="polite"></span>
+    </div>
+  </form>
+
+  <section class="result" id="result" hidden>
+    <p>Не удалось скачать файл, поэтому грамота показана картинкой. Нажмите на неё правой кнопкой мыши и выберите «Сохранить изображение», а на телефоне удерживайте палец на картинке. Для печати выбирайте формат A4 без полей.</p>
+    <img id="resultImg" alt="Готовая грамота">
+  </section>
+
+  <div class="stage" id="stage">
+    <div class="scaler" id="scaler">
+<div id="cert" style="position: relative; width: 794px; height: 1123px; box-sizing: border-box; background: #fbf7ec; overflow: hidden; font-family: 'PT Serif', Georgia, serif; color: #1b1b18">
+
+  <svg width="794" height="1123" viewBox="0 0 794 1123" fill="none" aria-hidden="true" style="position: absolute; top: 0px; left: 0px">
+    <defs>
+      <pattern id="ring" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
+        <circle cx="5" cy="5" r="6.2" stroke="#b8923f" stroke-width="0.7" fill="none"/>
+      </pattern>
+    </defs>
+    <rect x="26" y="26" width="742" height="1071" stroke="#1f4d3a" stroke-width="2"/>
+    <path d="M34 34 H760 V1089 H34 Z M56 56 V1067 H738 V56 Z" fill="url(#ring)" fill-rule="evenodd"/>
+    <rect x="34" y="34" width="726" height="1055" stroke="#1f4d3a" stroke-width="1"/>
+    <rect x="56" y="56" width="682" height="1011" stroke="#1f4d3a" stroke-width="1"/>
+    <rect x="64" y="64" width="666" height="995" stroke="#b8923f" stroke-width="0.8"/>
+    <g fill="#fbf7ec" stroke="#1f4d3a" stroke-width="1">
+      <rect x="31" y="31" width="30" height="30"/>
+      <rect x="733" y="31" width="30" height="30"/>
+      <rect x="31" y="1062" width="30" height="30"/>
+      <rect x="733" y="1062" width="30" height="30"/>
+    </g>
+    <g fill="#b8923f">
+      <path d="M46 36 L56 46 L46 56 L36 46 Z"/>
+      <path d="M748 36 L758 46 L748 56 L738 46 Z"/>
+      <path d="M46 1067 L56 1077 L46 1087 L36 1077 Z"/>
+      <path d="M748 1067 L758 1077 L748 1087 L738 1077 Z"/>
+    </g>
+    <g fill="#fbf7ec">
+      <circle cx="46" cy="46" r="2.5"/>
+      <circle cx="748" cy="46" r="2.5"/>
+      <circle cx="46" cy="1077" r="2.5"/>
+      <circle cx="748" cy="1077" r="2.5"/>
+    </g>
+  </svg>
+
+  <div style="position: absolute; top: 96px; left: 104px; right: 104px; bottom: 92px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; text-align: center">
+
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 10px">
+      <div style="font-size: 12px; letter-spacing: 4px; text-transform: uppercase; color: #7a5c1e">Ижевск · Налоговый период 2025</div>
+      <svg width="520" height="130" viewBox="0 0 520 130" fill="none" aria-label="Ижевск: монумент «Дружба народов», Михайловская колонна, Свято-Михайловский собор, Арсенал">
+        <g stroke="#1f4d3a" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round" fill="#fbf7ec">
+          <polygon points="14,124 30,116 76,116 92,124"/>
+          <path d="M26 118 H80 M20 121 H86" fill="none" stroke-width="0.6"/>
+          <path d="M34 116 V8 Q43 10 48 22 V116 Z"/>
+          <path d="M72 116 V8 Q63 10 58 22 V116 Z"/>
+          <path d="M38 22 V112 M68 22 V112" fill="none" stroke-width="0.6"/>
+          <rect x="48" y="26" width="10" height="74" fill="#1f4d3a"/>
+          <path d="M47 100 H59 L56 105 H50 Z" fill="#1f4d3a"/>
+          <g fill="#fbf7ec" stroke="none">
+            <rect x="50" y="44" width="6" height="3"/>
+            <rect x="50" y="66" width="6" height="3"/>
+            <path d="M53 30 l2 6 h-4 z M53 52 l2 8 h-4 z M53 74 l2 10 h-4 z"/>
+          </g>
+          <rect x="108" y="120" width="26" height="4"/>
+          <rect x="110" y="116" width="22" height="4"/>
+          <rect x="113" y="100" width="16" height="16"/>
+          <rect x="116" y="104" width="10" height="7" fill="none" stroke-width="0.6"/>
+          <rect x="112" y="97" width="18" height="3"/>
+          <polygon points="118,97 119,36 123,36 124,97"/>
+          <polygon points="116,33 126,33 124,36 118,36"/>
+          <rect x="114" y="30" width="14" height="3"/>
+          <rect x="118.5" y="26" width="5" height="4"/>
+          <path d="M123.6 26 V1.5 M121.1 5 H126.1" fill="none" stroke-width="1"/>
+          <polygon points="119.2,26 120.2,18.6 122.9,18.6 123.1,26" fill="#1f4d3a" stroke-width="0.4"/>
+          <circle cx="121.4" cy="16.6" r="1.3" fill="#1f4d3a" stroke="none"/>
+          <path d="M121.6 19.4 L123.4 18.2 M121.8 18.6 L123.4 15.8" fill="none" stroke-width="0.7"/>
+          <path d="M120.4 18.4 C117.6 17.6 116.6 21.4 117.4 25.8 L120 22.6 Z" fill="#1f4d3a" stroke-width="0.4"/>
+          <rect x="205" y="84" width="110" height="40"/>
+          <rect x="222" y="60" width="76" height="24"/>
+          <path d="M222 60 Q231 51 240 60 Q249 51 258 60 Q267 51 276 60 Q285 51 294 60"/>
+          <rect x="207" y="70" width="10" height="14"/>
+          <path d="M205 70 C204 64 212 60 212 55 C212 60 220 64 219 70 Z"/>
+          <rect x="303" y="70" width="10" height="14"/>
+          <path d="M301 70 C300 64 308 60 308 55 C308 60 316 64 315 70 Z"/>
+          <rect x="225" y="46" width="10" height="14"/>
+          <path d="M223 46 C222 40 230 36 230 31 C230 36 238 40 237 46 Z"/>
+          <rect x="285" y="46" width="10" height="14"/>
+          <path d="M283 46 C282 40 290 36 290 31 C290 36 298 40 297 46 Z"/>
+          <rect x="246" y="44" width="28" height="16"/>
+          <polygon points="246,44 260,16 274,44"/>
+          <path d="M256 17 C254 13 260 11 260 7 C260 11 266 13 264 17 Z"/>
+          <path d="M212 55 V50 M308 55 V50 M230 31 V26 M290 31 V26 M260 7 V0 M257 3 H263 M253 44 L260 24 L267 44" fill="none"/>
+          <path d="M253 124 V104 A7 7 0 0 1 267 104 V124 M232 118 V104 A4 4 0 0 1 240 104 V118 M280 118 V104 A4 4 0 0 1 288 104 V118 M252 78 V68 A3 3 0 0 1 258 68 V78 M262 78 V68 A3 3 0 0 1 268 68 V78" fill="none"/>
+          <polygon points="348,94 352,88 498,88 502,94"/>
+          <rect x="352" y="94" width="146" height="30"/>
+          <path d="M360 100 h5 v9 h-5 z M372 100 h5 v9 h-5 z M384 100 h5 v9 h-5 z M461 100 h5 v9 h-5 z M473 100 h5 v9 h-5 z M485 100 h5 v9 h-5 z" fill="none" stroke-width="0.8"/>
+          <rect x="390" y="80" width="70" height="6"/>
+          <rect x="394" y="86" width="62" height="38"/>
+          <path d="M400 88 V124 M408 88 V124 M416 88 V124 M424 88 V124 M432 88 V124 M440 88 V124 M448 88 V124" fill="none" stroke-width="0.9"/>
+          <rect x="408" y="64" width="34" height="16"/>
+          <circle cx="425" cy="72" r="4"/>
+          <rect x="413" y="46" width="24" height="18"/>
+          <path d="M419 60 V53 A2 2 0 0 1 423 53 V60 M427 60 V53 A2 2 0 0 1 431 53 V60" fill="none" stroke-width="0.8"/>
+          <path d="M411 46 Q425 28 439 46 Z"/>
+          <rect x="422" y="26" width="6" height="8"/>
+          <path d="M425 26 V4 M425 5 L432 7 L425 9" fill="none"/>
+          <path d="M8 124 H512" fill="none"/>
+        </g>
+      </svg>
+    </div>
+
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 4px">
+      <h1 style="margin: 0; font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 700; font-size: 84px; line-height: 1; letter-spacing: 14px; text-transform: uppercase; color: #1f4d3a; padding-left: 14px">Грамота</h1>
+      <div style="font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-weight: 500; font-size: 27px; line-height: 1.25; color: #1b1b18">за стойкость, проявленную в ходе камеральной проверки</div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 6px">
+      <div style="font-size: 12px; letter-spacing: 4px; text-transform: uppercase; color: #7a5c1e">Вручается</div>
+      <div style="font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-weight: 600; font-size: 54px; line-height: 1.1; color: #1f4d3a; padding: 0 40px 6px; border-bottom: 1px solid #b8923f; white-space: nowrap; max-width: 586px; box-sizing: border-box" id="cNameBox"><span id="cName">&nbsp;</span></div>
+    </div>
+
+    <div id="cStory" style="font-size: 16px; line-height: 1.6; max-width: 580px; text-wrap: pretty; white-space: pre-line">Инспекция запросила документы и потребовала подтвердить проживание в регионе. Вместе с юристом было составлено обстоятельное ответное письмо, доводы налогоплательщика приняты, и проверка завершилась без единой претензии.</div>
+
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 2px">
+      <div style="font-size: 12px; letter-spacing: 4px; text-transform: uppercase; color: #7a5c1e">Итог проверки</div>
+      <div style="font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 700; font-size: 44px; line-height: 1.15; color: #1f4d3a">Нарушений не выявлено</div>
+    </div>
+
+    <div style="width: 100%; box-sizing: border-box; border-top: 1.5px solid #1f4d3a; border-bottom: 1.5px solid #1f4d3a; text-align: left">
+      <div style="display: grid; grid-template-columns: 150px minmax(0, 1fr); column-gap: 18px; padding: 9px 4px; border-bottom: 1px solid #d6c59a">
+        <div style="font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: #7a5c1e; padding-top: 3px">Статус</div>
+        <div style="font-size: 14px; font-weight: 700; color: #1f4d3a">КП завершена</div>
+      </div>
+      <div style="display: grid; grid-template-columns: 150px minmax(0, 1fr); column-gap: 18px; padding: 9px 4px; border-bottom: 1px solid #d6c59a">
+        <div style="font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: #7a5c1e; padding-top: 3px">Документ</div>
+        <div style="font-size: 14px; line-height: 1.4">КНД 1152017 — Налоговая декларация по налогу, уплачиваемому в связи с применением упрощённой системы налогообложения</div>
+      </div>
+      <div style="display: grid; grid-template-columns: 150px minmax(0, 1fr); column-gap: 18px; padding: 9px 4px; border-bottom: 1px solid #d6c59a">
+        <div style="font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: #7a5c1e; padding-top: 3px">Период</div>
+        <div style="font-size: 14px">2025 год</div>
+      </div>
+      <div style="display: grid; grid-template-columns: 150px minmax(0, 1fr); column-gap: 18px; padding: 9px 4px">
+        <div style="font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: #7a5c1e; padding-top: 3px">Налоговый орган</div>
+        <div style="font-size: 14px; line-height: 1.4">1800 — Управление Федеральной налоговой службы по Удмуртской Республике</div>
+      </div>
+    </div>
+
+    <div style="width: 100%; display: flex; align-items: flex-end; justify-content: space-between">
+      <div style="width: 190px; display: flex; flex-direction: column; align-items: center; gap: 4px">
+        <div style="width: 100%; font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-size: 22px; padding-bottom: 4px; border-bottom: 1px solid #1b1b18"><span id="cDate">Сентябрь 2026 г.</span></div>
+        <div style="font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: #7a5c1e">Дата</div>
+      </div>
+
+      <svg width="100" height="125" viewBox="0 0 120 150" fill="none" aria-label="Печать: проверка пройдена">
+        <defs>
+          <path id="sealText" d="M60 60 m-43 0 a43 43 0 1 1 86 0 a43 43 0 1 1 -86 0"/>
+        </defs>
+        <polygon points="40,88 58,98 46,148 38,136 27,144" fill="#1f4d3a"/>
+        <polygon points="80,88 62,98 74,148 82,136 93,144" fill="#1f4d3a"/>
+        <circle cx="60" cy="60" r="55" stroke="#b8923f" stroke-width="8" stroke-dasharray="3 2.2"/>
+        <circle cx="60" cy="60" r="52" fill="#b8923f"/>
+        <circle cx="60" cy="60" r="49" stroke="#fbf7ec" stroke-width="0.8"/>
+        <circle cx="60" cy="60" r="35" stroke="#fbf7ec" stroke-width="0.8"/>
+        <text font-family="PT Serif, Georgia, serif" font-size="8.4" font-weight="700" letter-spacing="1.3" fill="#fbf7ec"><textPath href="#sealText">КАМЕРАЛЬНАЯ ПРОВЕРКА • ПРОЙДЕНА • 2025 •</textPath></text>
+        <path d="M44 60 L55 71 L77 48" stroke="#fbf7ec" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+
+      <div style="width: 190px; display: flex; flex-direction: column; align-items: center; gap: 4px">
+        <div style="width: 100%; font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-size: 22px; padding-bottom: 4px; border-bottom: 1px solid #1b1b18">Так держать!</div>
+        <div style="font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: #7a5c1e">Напутствие</div>
+      </div>
+    </div>
+  </div>
+</div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+(function(){
+  var stage=document.getElementById('stage'), scaler=document.getElementById('scaler');
+  var nameIn=document.getElementById('nameInput'), dateIn=document.getElementById('dateInput'), storyIn=document.getElementById('storyInput'), cStory=document.getElementById('cStory'), DEFAULT_STORY=storyIn.value;
+  var cName=document.getElementById('cName'), cDate=document.getElementById('cDate'), box=document.getElementById('cNameBox');
+  var statusEl=document.getElementById('status');
+  var pdfBtn=document.getElementById('pdfBtn'), pngBtn=document.getElementById('pngBtn');
+
+  function fit(){
+    var s=Math.min(1, stage.clientWidth/794);
+    scaler.style.transform='scale('+s+')';
+    stage.style.height=(1123*s)+'px';
+  }
+  new ResizeObserver(fit).observe(stage); fit();
+
+  function fitName(){
+    var size=54; box.style.fontSize=size+'px';
+    while(box.scrollWidth>box.clientWidth+1 && size>26){ size-=2; box.style.fontSize=size+'px'; }
+  }
+  function sync(){
+    cName.textContent=nameIn.value.trim()||'\u00a0';
+    box.style.minWidth=nameIn.value.trim()?'':'420px';
+    cDate.textContent=dateIn.value.trim()||' ';
+    cStory.textContent=storyIn.value.trim()||'\u00a0';
+    var fs=16; cStory.style.fontSize=fs+'px';
+    while(cStory.offsetHeight>110 && fs>12){ fs-=1; cStory.style.fontSize=fs+'px'; }
+    fitName();
+  }
+  try{ var saved=JSON.parse(localStorage.getItem('gramota')||'null'); if(saved){ nameIn.value=saved.n||''; dateIn.value=saved.d||dateIn.value; if(typeof saved.s==='string') storyIn.value=saved.s; } }catch(e){}
+  function remember(){ try{ localStorage.setItem('gramota',JSON.stringify({n:nameIn.value,d:dateIn.value,s:storyIn.value})); }catch(e){} }
+  nameIn.addEventListener('input',function(){sync();remember();});
+  dateIn.addEventListener('input',function(){sync();remember();});
+  storyIn.addEventListener('input',function(){sync();remember();});
+  document.getElementById('form').addEventListener('submit',function(e){e.preventDefault();});
+  sync();
+  if(document.fonts&&document.fonts.ready){ document.fonts.ready.then(fitName); }
+
+  var downloads={save:function(o){ return new Promise(function(res){
+    var url=URL.createObjectURL(o.data), a=document.createElement('a');
+    a.href=url; a.download=o.filename; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function(){URL.revokeObjectURL(url);},4000); res({status:'saved'}); }); }};
+  var resultBox=document.getElementById('result'), resultImg=document.getElementById('resultImg');
+  function setStatus(t,err){ statusEl.textContent=t; statusEl.className=err?'err':''; }
+
+  function render(){
+    return (document.fonts?document.fonts.ready:Promise.resolve()).then(function(){
+      return html2canvas(document.getElementById('cert'),{
+        scale:3, backgroundColor:'#fbf7ec', useCORS:true, logging:false,
+        onclone:function(doc){ var sc=doc.getElementById('scaler'); if(sc) sc.style.transform='none'; var st=doc.getElementById('stage'); if(st){ st.style.height='auto'; st.style.overflow='visible'; } }
+      });
+    });
+  }
+  function fileBase(){ var n=(nameIn.value.trim()||'gramota').replace(/[\\/:*?"<>|]+/g,'').replace(/\s+/g,'_'); return 'Грамота_'+n; }
+
+  function showImage(canvas){
+    resultImg.src=canvas.toDataURL('image/png');
+    resultBox.hidden=false;
+    resultBox.scrollIntoView({behavior:'smooth',block:'start'});
+    setStatus('Готово. Сохраните картинку ниже.');
+  }
+  function run(kind){
+    pdfBtn.disabled=pngBtn.disabled=true; setStatus('Готовлю файл…');
+    render().then(function(canvas){
+      if(!downloads){ showImage(canvas); return; }
+      var job;
+      if(kind==='pdf'){
+        var pdf=new window.jspdf.jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+        pdf.addImage(canvas.toDataURL('image/jpeg',0.95),'JPEG',0,0,210,297);
+        job=downloads.save({filename:fileBase()+'.pdf',data:pdf.output('blob')});
+      } else {
+        job=new Promise(function(res){ canvas.toBlob(res,'image/png'); }).then(function(blob){
+          return downloads.save({filename:fileBase()+'.png',data:blob});
+        });
+      }
+      return job.then(function(){ setStatus('Готово.'); }, function(e){
+        var c=e&&e.code;
+        if(c==='declined') setStatus('Скачивание отменено.');
+        else if(c==='rate_limited') setStatus('Окно сохранения уже открыто.');
+        else showImage(canvas);
+      });
+    }).catch(function(){ setStatus('Не получилось собрать грамоту. Обновите страницу и попробуйте ещё раз.',true); })
+    .then(function(){ pdfBtn.disabled=pngBtn.disabled=false; });
+  }
+  document.getElementById('printBtn').addEventListener('click',function(){ window.print(); });
+  pdfBtn.addEventListener('click',function(){run('pdf');});
+  pngBtn.addEventListener('click',function(){run('png');});
+})();
+</script>
+
+</body>
+</html>
